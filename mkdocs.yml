@@ -1,0 +1,4 @@
+site_name: myriAD
+pages:
+- myriAD: index.md
+theme: readthedocs
