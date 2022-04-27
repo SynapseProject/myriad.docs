@@ -1,4 +1,10 @@
 site_name: myriAD
 pages:
 - Home: index.md
+- Installation:
+  - Amazon Web Services: install/aws.md
+- Usage:
+  - Overview: usage/usage.md
+  - Request: usage/request.md
+  - Response: usage/response.md
 theme: mkdocs
