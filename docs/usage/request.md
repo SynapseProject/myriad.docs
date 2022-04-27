@@ -32,7 +32,7 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
         "passphrase": "Passphrase"
     }
 }
-`````
+````
 
 | Json Path | Required | Description
 | --------- | -------- | -----------
