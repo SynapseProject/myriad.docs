@@ -94,7 +94,7 @@ Below is the list of variables needed to run the core cloud formation template, 
 | Variable Name | Required | Description
 | ------------- | -------- | -----------
 | MyriadEnvDefaultConfig | No (2) | Json string representing the default configuration to connect to the LDAP server.  Used when connection details are not provided in the request and for queries by object type. (see [Ldap Config](#ldap-config) for example)
-| MyriadEnvDomainMapping | No (3) | Json string representing a mapping of full domains and/or short domain names to environment variables that provide connection details to that domain. (see [LDAP Domain Mappings](ldap-domain-mappings)) for example)
+| MyriadEnvDomainMapping | No (3) | Json string representing a mapping of full domains and/or short domain names to environment variables that provide connection details to that domain. (see [LDAP Domain Mappings](ldap-domain-mappings) for example)
 | MyriadEnvReturnTypes | No | Json string representing attributes that should be returned as a different type other than string.  (see [Attribute Mapping](#attribute-mapping) for example)
 
 ### API Gateway Variables
