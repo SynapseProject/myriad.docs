@@ -9,6 +9,7 @@ Download the latest Zephyr.Directory.Aws.v#.#####.#.zip release, expand it and c
 The cloud formation template "cft-myriad-core.yaml" creates all the necessary resources required to run MyriAD in your AWS account.  It assumes you are running the template with a policy that has the permissions to create the resources necessary (listed below).  The policy document can be found in the "policies" directory.
 
 **Minimum Required Permissions**
+
 - apigateway:
     - DELETE
     - GET
