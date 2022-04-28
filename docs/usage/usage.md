@@ -6,13 +6,18 @@ myriAD works by placing a REST call to the API interface.  Below is a list of ea
 - **Raw LDAP Search** : Executes a search against the LDAP server using an LDAP Search Filter using an HTTP POST.
 - **Search By Object Type** : Executes a search for a specific LDAP Object Type (User, Group, etc...) using an HTTP GET.
 
+## Request and Response Objects
+
+Full details can be found on the [Request](request.md) and [Response](response.md) pages.
+
 ## Examples
 
 ### Encrypt Password
 
 Plain text password is included in the body of the HTTP POST, under the crypto > text element.   The value returned in the message element can be used with this instance of myriAD anywhere a password is required (default config, config section of request, etc...)
 
-Request
+[Request](request.md)
+
 ````json
 Http Verb:  POST
 Url :       https://{{apigateway}}/{{apigwystage}}/search
@@ -24,7 +29,8 @@ Body:
 }
 ````
 
-Response
+[Response](response.md)
+
 ````json
 {
     "success": true,
@@ -36,7 +42,8 @@ Response
 
 Provies a raw LDAP Search Filter in the "searchValue" element.  Returns a list of matching records and the attributes requested.
 
-Request
+[Request](request.md)
+
 ````json
 Http Verb:  POST
 Url :       https://{{apigateway}}/{{apigwystage}}/search
@@ -50,7 +57,8 @@ Body:
 }
 ````
 
-Response
+[Response](response.md)
+
 ````json
 {
     "success": true,
@@ -87,13 +95,15 @@ Response
 
 Same request as above, except executed as an HTTP GET, with requested attributes passed in as query parameters.
 
-Request
+[Request](request.md)
+
 ````json
 Http Verb:  GET
 Url :       https://{{apigateway}}/{{apigwystage}}/user/Waguespack*?attr=cn&attr=objectGUID
 ````
 
-Response
+[Response](response.md)
+
 ````json
 {
     "success": true,

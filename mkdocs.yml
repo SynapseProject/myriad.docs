@@ -5,6 +5,8 @@ pages:
   - Amazon Web Services: install/aws.md
 - Usage:
   - Overview: usage/usage.md
+  - Security: usage/security.md
   - Request: usage/request.md
   - Response: usage/response.md
+  - Search By Object: usage/objectsearch.md
 theme: mkdocs

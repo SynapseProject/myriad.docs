@@ -75,9 +75,9 @@ Below is a list of supported object types :
 
 When searching based on object types, myriAD expects an identity in the searchValue field.  This identity will be search for against one or more attributes to find the matching records.  
 
-All object types can be retrived by their **objectGUID**, **objectSID** or **Distinguished Name**.  Below is a list of other attributes searched base on each object type: 
+All object types can be retrived by their **objectGUID**, **objectSID** or **Distinguished Name**.  Below is a list of other attributes searched based on each object type: 
 
-| Object Type | Searched Attributes
+| Object Type | Attributes Searched
 | ----------- | -------------------
 | User | cn, name, userPrincipalName, sAMAccountName
 | Group | cn, name, sAMAccountName
