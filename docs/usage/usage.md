@@ -2,7 +2,7 @@
 
 myriAD works by placing a REST call to the API interface.  Below is a list of each supported request type :
 
-- **Password Encryption** : Returns an encrypted version of a password based on either the default encryption keys, or using the encryption keys passed in with the request.
+- **Password Encryption** : Returns an encrypted version of a password based on either the default encryption keys, or using the encryption keys passed in with the request.  See the [Security Page](security.md#password-encryption) for more details.
 - **Raw LDAP Search** : Executes a search against the LDAP server using an LDAP Search Filter using an HTTP POST.
 - **Search By Object Type** : Executes a search for a specific LDAP Object Type (User, Group, etc...) using an HTTP GET.
 
