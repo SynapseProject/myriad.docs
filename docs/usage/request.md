@@ -1,4 +1,4 @@
-# myriad Request Object
+# myriAD Request Object
 
 The code behind myriAD receives a JSON object as its input.  Whether this is passed in directly from the requestor (raw search), or constructed internally (search by object type), an LdapRequest object is created and processed by the software.  Below is the layout of the LdapRequest object and a description of each field.
 
