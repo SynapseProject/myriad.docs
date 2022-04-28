@@ -1,4 +1,4 @@
-# myriad Request Object
+# myriad Response Object
 
 myriAD responds with a single LdapResponse JSON object for each request it receives, even for encryption requests.   Below is the layout of the response as well as a description of each field.
 
