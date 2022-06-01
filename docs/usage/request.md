@@ -5,6 +5,7 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
 ````json
 {
     "objectType": "ObjectTypeEnum",
+    "domain": "DomainMappingKey",
     "searchValue": "SearchValue",
     "searchBase": "SearchBase",
     "attributes": [
@@ -37,6 +38,7 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
 | Json Path | Required | Description
 | --------- | -------- | -----------
 | objectType | No | Type of object to search for.  Leave blank when using a raw LDAP Search Filter.  See [Object Types](#object-types) for valid values.
+| domain | No | The domain mapping key or config profile that should be used to perform the search (see [LDAP Configuration](../install/aws.md#ldap-configuration) for details.)
 | searchValue | Yes | The value to search on.  This should be the LDAP Search Filter for raw LDAP searches, or the identity of the object.  See [Identities](#identities) for more details.
 | searchBase | No | The fully qualified domain name of the OU from where the search should being.  (Defaults to RootDSE).
 | attributes | No | A list of attribute names to return with each found record.  If no list is provided, all attributes will be returned.  If an empty list is provided, no attributes will be returned.

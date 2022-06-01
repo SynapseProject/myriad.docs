@@ -13,7 +13,7 @@ Optionally, you can include the following query paramters after the URL to speci
 | Query Parameter | Example | Description
 | --------------- | ------- | -----------
 | attr | .../myriad/user/myuserid?attr=cn&attr=objectGUID | Indicates which attributes to return for each record, one attribute per query parameter, repeated.
-
+| domain | .../myriad/user/OBJECT_GUID&domain=SB1 | Specifies the domain mapping or domain config to use to perform the search.  Primarily used for search by ObjectGUID or SecurityIdentifier, since domain can be included in the path for all other object types.
 
 ## Example Calls
 
@@ -28,3 +28,11 @@ https://.../myriad/computer/MyComputerName?attr=
 **Return Printer with 3 attributes**
 
 https://.../myriad/printer/MyPrinterName?attr=cn&attr=name&attr=description
+
+**Return User From Domain SB1**
+
+https://.../myriad/user/SB1/MySamAccountName
+
+https://.../myriad/user/MyObjectGUID?domain=SB1
+
+https://.../myriad/user/MySecurityIdentifier?domain=SB1
