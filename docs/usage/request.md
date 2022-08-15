@@ -100,6 +100,7 @@ All object types can be retrived by their **objectGUID**, **objectSID** or **Dis
 ### Reserved Search Characters
 
 The following characters will need to be escaped in the searchValue property to ensure proper a LDAP search occurs :
+
 | Character | Description | Escape To | Example | Value In LDAP
 | --------- | ----------- | --------- | ------- | -------------
 | \ | Backslash | \5C  | (cn=Waguespack\5C, Guy) | Waguespack\, Guy
