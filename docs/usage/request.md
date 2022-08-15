@@ -39,7 +39,7 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
 | --------- | -------- | -----------
 | objectType | No | Type of object to search for.  Leave blank when using a raw LDAP Search Filter.  See [Object Types](#object-types) for valid values.
 | domain | No | The domain mapping key or config profile that should be used to perform the search (see [LDAP Configuration](../install/aws.md#ldap-configuration) for details.)
-| searchValue | Yes | The value to search on.  This should be the LDAP Search Filter for raw LDAP searches, or the identity of the object.  See [Identities](#identities) for more details.
+| searchValue | Yes | The value to search on.  This should be the LDAP Search Filter for raw LDAP searches, or the identity of the object.  See [Identities](#identities) for more details.  The following [special characters](#reserved-search-characters) will need to be escaped: \ ( ) * and NULL.
 | searchBase | No | The fully qualified domain name of the OU from where the search should being.  (Defaults to RootDSE).
 | attributes | No | A list of attribute names to return with each found record.  If no list is provided, all attributes will be returned.  If an empty list is provided, no attributes will be returned.
 | config > server | No | The server this request should connect to.
@@ -72,6 +72,8 @@ Below is a list of supported object types :
 | Volume | Shared Folders
 | Domain
 | DomainController
+| Dn | Shorthand for DistinguishedName
+| DistinguishedName
 
 ### Identities
 
@@ -92,4 +94,79 @@ All object types can be retrived by their **objectGUID**, **objectSID** or **Dis
 | Volume | cn, name
 | Domain | name
 | DomainController | cn, name, sAMAccountName
+| Dn | distinguishedName
+| DistinguishedName | distinguishedName
 
+### Reserved Search Characters
+
+The following characters will need to be escaped in the searchValue property to ensure proper a LDAP search occurs :
+| Character | Description | Escape To | Example | Value In LDAP
+| --------- | ----------- | --------- | ------- | -------------
+| \ | Backslash | \5C  | (cn=Waguespack\5C, Guy) | Waguespack\, Guy
+| ( | Open Parenthesis | \28 | (cn=Joe Blow \28Contractor\29) | Joe Blow (Contractor)
+| ) | Close Parenthesis | \29 | (cn=Joe Blow \28Contractor\29) | Joe Blow (Contractor)
+| * | Asterisk | \2A | (cn=Q*Bert) | Q*Bert (where the asterisk is a literal character in the value, not a wildcard search)
+| NULL | Null Value | \00 | ??? | ???
+
+Please note, that passing the filter string as a JSON Body, any backslashes will have to also be escaped to properly format the JSON, so examples of this would be : 
+
+```json
+{
+	"searchValue": "(distinguishedName=CN=Waguespack\\5C, Guy \\28Contractor\\29,OU=Users,DC=sandbox,DC=local"
+}
+
+{
+	"searchValue": "(distinguishedName=CN=Q\\2ABert,OU=Users,DC=sandbox,DC=local"
+}
+```
+
+However, when searching by object type, either via a JSON Post or the HTTP Get URL, MyriAD will escape the characters for you.
+
+```json
+Request : 
+
+{
+	"objectType": "User",
+	"searchValue": "CN=Waguespack\\, Guy (Contractor),OU=Users,DC=sandbox,DC=local",
+    "attributes": [
+        "cn"
+    ]
+}
+
+Response : 
+{
+    "success": true,
+    "server": "ldaps://sandbox.local:636",
+    "searchBase": "DC=sandbox,DC=local",
+    "searchFilter": "(&(objectCategory=User)(distinguishedName=CN=Waguespack\\5C, Guy \\28Contractor\\29,OU=Users,DC=sandbox,DC=local))",
+    "records": [
+        {
+            "dn": "CN=Waguespack\\, Guy (Contractor),OU=Users,DC=sandbox,DC=local",
+            "attributes": {
+                "cn": "Waguespack, Guy (Contractor)"
+            }
+        }
+    ]
+}
+```
+
+```json
+HTTP GET :
+https://my.company.com/myriad/dn/CN=Waguespack%5C, Guy (Contractor),OU=Users,DC=sandbox,DC=local?attr=cn
+
+Response : 
+{
+    "success": true,
+    "server": "ldaps://sandbox.local:636",
+    "searchBase": "DC=sandbox,DC=local",
+    "searchFilter": "(distinguishedName=CN=Waguespack\\5C, Guy \\28Contractor\\29,OU=Users,DC=sandbox,DC=local)",
+    "records": [
+        {
+            "dn": "CN=Waguespack\\, Guy (Contractor),OU=Users,DC=sandbox,DC=local",
+            "attributes": {
+                "cn": "Waguespack, Guy (Contractor)"
+            }
+        }
+    ]
+}
+```
