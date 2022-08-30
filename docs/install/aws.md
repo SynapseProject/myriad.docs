@@ -126,6 +126,8 @@ The following JSON Objects are used in the [LDAP Configuration](#ldap-configurat
     "ssl" : true,
     "username": "MyUserName",
     "password": "MyEncryptedOrPlainTextPassword"
+    "maxResults": 1000,
+    "maxRetries": 2
 }
 ```
 
