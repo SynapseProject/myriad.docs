@@ -20,6 +20,7 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
         "username": "MyUserName",
         "password": "MyEncryptedOrPlaintextPassword",
         "maxResults": 1000,
+        "maxRetries": 0,
         "returnTypes": {
             "attribute001": "StringArray",
             "attribute002": "Guid",
@@ -47,6 +48,8 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
 | config > ssl | No | Boolean value on whether to connect to the server using a secure socket. 
 | config > username | No | The username used to connect to the LDAP server.
 | config > password | No | The password (encrypted or plaintext) ot use to connect to the LDAP Server.
+| config > maxResults | No | The maximum number of matching records to return.
+| config > maxRetries | No | The number of times to retry reconnecting to the server before stopping. (Default = 0, No Retries)
 | config > returnTypes | No | Attributes default to returning as a single string.  Well known attributes will be returned as appropriate values.  The "returnTypes" section of the config specifies any attributes that should be returned as an object other than string.
 | crypto > text | No | When a value is specified here, all other values are ignored and myriAD will perform an encryption of the value specified here.
 | crypto > iv | No | The Init Vector to use when encrypting the value.
