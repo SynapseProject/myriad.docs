@@ -178,7 +178,7 @@ The core template requires the Amazon Resource Name (ARN) of an IAM Role under w
 
 ### Rest Api Gateway
 
-The core template requires a Rest Api Gateway where the required methods and resources will be deployed.  This section will create an API Gateway and a dummy "Hello World" GET method at the root.  Here are the template variables for creating an API Gateway :
+The core template requires a Rest Api Gateway where the required methods and resources will be deployed.  This section will create an empty API Gateway for use in the core template.  Here are the template variables for creating an API Gateway :
 
 | Variable Name | Required | Description
 | ------------- | -------- | -----------
