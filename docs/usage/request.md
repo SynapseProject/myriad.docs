@@ -8,6 +8,10 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
     "domain": "DomainMappingKey",
     "searchValue": "SearchValue",
     "searchBase": "SearchBase",
+    "searchScope": "All, One or Base",
+    "maxResults": 10000,
+    "nextToken": "Base64 Encoded String To Continue Paged Search",
+    "wildcardSearch": false,
     "attributes": [
         "attribute001",
         "attribute002",
@@ -19,7 +23,6 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
         "ssl": true,
         "username": "MyUserName",
         "password": "MyEncryptedOrPlaintextPassword",
-        "maxResults": 1000,
         "maxRetries": 0,
         "returnTypes": {
             "attribute001": "StringArray",
@@ -32,7 +35,8 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
         "iv": "InitVector",
         "salt": "SaltValue",
         "passphrase": "Passphrase"
-    }
+    },
+    "ping": "Echo or NoEcho"
 }
 ````
 
@@ -42,19 +46,23 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
 | domain | No | The domain mapping key or config profile that should be used to perform the search (see [LDAP Configuration](../install/aws.md#ldap-configuration) for details.)
 | searchValue | Yes | The value to search on.  This should be the LDAP Search Filter for raw LDAP searches, or the identity of the object.  See [Identities](#identities) for more details.  The following [special characters](#reserved-search-characters) will need to be escaped: \ ( ) * and NULL.
 | searchBase | No | The fully qualified domain name of the OU from where the search should being.  (Defaults to RootDSE).
+| searchScope | No | Specifies the depth of the search.  **All** = Base Object and All Entries in its subtree, **One** = Base Object and immediate subordinates of the base object.  **Base** = Base Object only.  (Default Value = **All**)
+| maxResults | No | The maximum number of records to return.  If more record exist, the "nextToken" attribute will be returned which allows for another search from the last record retrieved.  (See [Paged Searching](#paged-searching) For More Details)
+| nextToken | No | A Base64 encoded token that allows for paged searching.  Used to return next set of records that still exist after the maxResults amount have been retrieved. (See [Paged Searching](#paged-searching) For More Details)
+| wildcardSearch | No | Explicitly tells MyriAD that you are performing a wildcard search.  This is only really needed when you are searching for a DistinguishedName that also contains an asterik as part of the FQDN, thus telling MyriAD to treat the asterisk as the character and NOT as a wildcard.
 | attributes | No | A list of attribute names to return with each found record.  If no list is provided, all attributes will be returned.  If an empty list is provided, no attributes will be returned.
 | config > server | No | The server this request should connect to.
 | config > port | No | The port this request should connect to.  Will default to 389 or 636 (depending on ssl flag) if no values provided.
 | config > ssl | No | Boolean value on whether to connect to the server using a secure socket. 
 | config > username | No | The username used to connect to the LDAP server.
 | config > password | No | The password (encrypted or plaintext) ot use to connect to the LDAP Server.
-| config > maxResults | No | The maximum number of matching records to return.
 | config > maxRetries | No | The number of times to retry reconnecting to the server before stopping. (Default = 0, No Retries)
 | config > returnTypes | No | Attributes default to returning as a single string.  Well known attributes will be returned as appropriate values.  The "returnTypes" section of the config specifies any attributes that should be returned as an object other than string.
 | crypto > text | No | When a value is specified here, all other values are ignored and myriAD will perform an encryption of the value specified here.
 | crypto > iv | No | The Init Vector to use when encrypting the value.
 | crypto > salt | No | The Salt Value to use when encrypting the value.
 | crypto > passphrase | No | The Passphrase to use when encrypting the value.
+| ping | No | This is a way to test connectivity to MyriAD.  It returns a "Hello" message with the current version of MyriAD.
 
 **NOTE :** The "config" and "crypto" sections will pull data from the default configuration and/or the domain specific configuration when values are not provided.  
 
@@ -172,5 +180,24 @@ Response :
             }
         }
     ]
+}
+```
+
+### Paged Searching
+
+Beginning with version 1.1.23165.0 of MyriAD, the ability to specify the maximum number of records you want returned, and the ability to make a 2nd search passing in a "nextToken" field to retrieve more records starting from the last record retrieved was introduced.
+
+This functionality, however, is HIGHLY dependant on the LDAP server's configuration as to whether it supports paged results (sometimes called LDAP Cookies).  In my testing observations, I've noticed that the token RARELY survives the LDAP connection being closed.  On busy servers, it also seems to be very short-lived, as the settings on the server's "Cookie Pool" are usually set low.
+
+When a token cannot be found, or the server does not support pagination, the error below will appear.
+
+```json
+{
+  "success": false,
+  "server": "ldaps://sandbox.local:636",
+  "searchBase": "OU=TooManyGroups,OU=Testing,DC=sandbox,DC=local",
+  "searchFilter": "(&(objectCategory=Group)(|(cn=*)(name=*)(sAMAccountName=*)))",
+  "message": "Unavailable Critical Extension",
+  "totalRecords": 0
 }
 ```

@@ -9,6 +9,8 @@ myriAD responds with a single LdapResponse JSON object for each request it recei
     "searchBase": "Search Base Used For Query",
     "searchFilter": "The Raw LDAP Search Filter Used For Query",
     "message": "Error Message or Encrypted Value of Password",
+    "totalRecords": 42,
+    "nextToken": "Base64 Encoded LDAP Cookie To Continue Search",
     "records": [
         {
             "dn": "DistinguishedName,
@@ -31,6 +33,8 @@ myriAD responds with a single LdapResponse JSON object for each request it recei
 | searchBase | The Search Base the query was executed against.
 | searchFilter | The raw LDAP Search Filter used for the query.
 | message | When success is false, the error message.  When query was an encrpytion request, this field will contained the encrypted value.
+| totalRecords | Total number of records returned in this search.
+| nextToken | Base64 encoded cookie that alllows for paged searches.  **WARNING** : This token is highly dependant on the server supporting this functionality, as well as the settings around the cookie pool.  From my observations, this token does not reliably survive closing of an LDAPConnection. 
 | records | A list of Zero or more records that are the result of the query.
 | records > dn | The DistinguisedName of the LDAP record.  This will ALWAYS be returned for every record.
 | records > attributes | A Key/Value dictionary of attributes requested to be returned with each object.   See [Return Types](#return-types) section below for an explaination of how attributes are returned.
@@ -152,7 +156,6 @@ By default, MyriAD attempts to return an attribute in the same format as it is s
 | birthLocation | Bytes
 | bootFile | StringArray
 | bootParameter | StringArray
-| bp-DN-Multi-04 | StringArray
 | bridgeheadServerListBL | StringArray
 | bridgeheadTransportList | StringArray
 | buildingName | StringArray
