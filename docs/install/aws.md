@@ -74,7 +74,7 @@ The core cloud formation template expects a few items to have been created befor
 - **REST API (API Gateway)** - The core template requires an existing REST Api where it can create its resources, methods, api keys (optional) and usage plans (optional).  The two bits of information needed about the REST Api are the Gateway Id and the Root Resource Id (pictured below) 
     - APIs > MyApi (**API ID**) > Resources > / (**Root Resource Id**)
     - ![API Gateway Console](images/rest-api.png)
-- **EC2 Security Group** - This is only required if the lambda function will be deployed inside of a VPC.  The default security group created by the init template blocks all inbound connections, but allows all outbound connections.  I'm sure this can be restricted further if you feel that is too permissive.
+- **EC2 Security Group** - This is only required if the lambda function will be deployed inside of a VPC.  The default security group created by the init template blocks all inbound connections except for HTTPS, but allows all outbound connections.  I'm sure this can be restricted further if you feel that is too permissive.
 
 ## Template Variables
 
