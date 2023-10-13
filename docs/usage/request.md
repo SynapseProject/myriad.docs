@@ -26,6 +26,7 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
         "maxRetries": 0,
         "maxPageSize": 512,
         "followReferrals": false,
+        "ignoreWarnings": false,
         "returnTypes": {
             "attribute001": "StringArray",
             "attribute002": "Guid",
@@ -61,6 +62,7 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
 | config > maxRetries | No | The number of times to retry reconnecting to the server before stopping. (Default = 0, No Retries)
 | config > maxPageSize | No | This tells MyriAD how many results to pull back for each search it performs up to the "maxResults".  This affects the internal retrieval of results and is used mostly for performance tuning, not to control the number of records returned.  (Default = 512)
 | config > followReferrals | No | Indicates whether or not to follow LDAP referrals when retrieving records.  This is used when records exist, but might not exist on the server you are attached to.  This does cause performance issues, so use it only if you know you need to use it.  (Default = False)
+| config > ignoreWarnings | No | Returns warnings in status field when set to false.  (Default Value = false)
 | config > returnTypes | No | Attributes default to returning as a single string.  Well known attributes will be returned as appropriate values.  The "returnTypes" section of the config specifies any attributes that should be returned as an object other than string.
 | crypto > text | No | When a value is specified here, all other values are ignored and myriAD will perform an encryption of the value specified here.
 | crypto > iv | No | The Init Vector to use when encrypting the value.

@@ -8,6 +8,7 @@ myriAD responds with a single LdapResponse JSON object for each request it recei
     "server": "LDAP Server Connected To",
     "searchBase": "Search Base Used For Query",
     "searchFilter": "The Raw LDAP Search Filter Used For Query",
+    "status": "SuccessWithWarnings",
     "message": "Error Message or Encrypted Value of Password",
     "totalRecords": 42,
     "nextToken": "Base64 Encoded LDAP Cookie To Continue Search",
@@ -32,6 +33,7 @@ myriAD responds with a single LdapResponse JSON object for each request it recei
 | server | The LDAP Server that the query was sent to.
 | searchBase | The Search Base the query was executed against.
 | searchFilter | The raw LDAP Search Filter used for the query.
+| status | Enumeration indicating the status of the request.  Valid values are "Success", "SuccessWithWarnings" and "Failure".
 | message | When success is false, the error message.  When query was an encrpytion request, this field will contained the encrypted value.
 | totalRecords | Total number of records returned in this search.
 | nextToken | Base64 encoded cookie that alllows for paged searches.  **WARNING** : This token is highly dependant on the server supporting this functionality, as well as the settings around the cookie pool.  From my observations, this token does not reliably survive closing of an LDAPConnection. 
