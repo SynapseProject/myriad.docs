@@ -1,6 +1,6 @@
 # Welcome to myriAD
 
-myriAD is a REST API for Microsoft Active Directory. 
+myriAD is a REST API for read-only queries into Microsoft Active Directory. 
 
 myriAD was originally implemented as a custom extension to Synapse.Server and provides a fully featured, RBAC-enabled JSON interface to AD.  Documentation for that implementation can be found in the [Synapse - Active Directory Handler](https://synapse.readthedocs.io/en/latest/handlers/ad/handler/) documentation.
 
