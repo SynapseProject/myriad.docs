@@ -292,7 +292,7 @@ Response :
 }
 ```
 
-**Example** : Expanding on the examle above, lets add the "searchValue" into the union to search for users that are in Houston, Austin and Dallas, but only if their names start with the same letter as the city they're from.
+**Example** : Expanding on the example above, lets add the "searchValue" into the union to search for users that are in Houston, Austin and Dallas, but only if their names start with the same letter as the city they're from.
 
 ````json
 Request : 
