@@ -7,7 +7,15 @@ myriAD responds with a single LdapResponse JSON object for each request it recei
     "success": true,
     "server": "LDAP Server Connected To",
     "searchBase": "Search Base Used For Query",
+    "serachBases": [
+        "Search Base 1",
+        "Search Base 2"
+    ],
     "searchFilter": "The Raw LDAP Search Filter Used For Query",
+    "searchFilters": [
+        "Search Filter 1",
+        "Search Filter 2"
+    ],
     "status": "SuccessWithWarnings",
     "message": "Error Message or Encrypted Value of Password",
     "totalRecords": 42,
@@ -32,7 +40,9 @@ myriAD responds with a single LdapResponse JSON object for each request it recei
 | success | Boolean Value indicating whether the action was executed sucessfully.
 | server | The LDAP Server that the query was sent to.
 | searchBase | The Search Base the query was executed against.
+| searchBases | A list of the Serarch Bases that were used in the request.  This only appears when the "union" element is in the request. See [Multiple Searches In One Request](request.md#multiple-searches-in-one-request) for details.
 | searchFilter | The raw LDAP Search Filter used for the query.
+| searchFilters | A list of Search Filters that were used in the request.  This only appears when the "union" element is in the request.  See [Multiple Searches In One Request](request.md#multiple-searches-in-one-request) for details.
 | status | Enumeration indicating the status of the request.  Valid values are "Success", "SuccessWithWarnings" and "Failure".
 | message | When success is false, the error message.  When query was an encrpytion request, this field will contained the encrypted value.
 | totalRecords | Total number of records returned in this search.

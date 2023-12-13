@@ -9,6 +9,10 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
     "searchValue": "SearchValue",
     "searchBase": "SearchBase",
     "searchScope": "All, One or Base",
+    "union": {
+        "searchBase": "SearchBase",
+        "searchValue": "SearchValue",
+    },
     "maxResults": 10000,
     "nextToken": "Base64 Encoded String To Continue Paged Search",
     "wildcardSearch": false,
@@ -50,6 +54,9 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
 | searchValue | Yes | The value to search on.  This should be the LDAP Search Filter for raw LDAP searches, or the identity of the object.  See [Identities](#identities) for more details.  The following [special characters](#reserved-search-characters) will need to be escaped: \ ( ) * and NULL.
 | searchBase | No | The fully qualified domain name of the OU from where the search should being.  (Defaults to RootDSE).
 | searchScope | No | Specifies the depth of the search.  **All** = Base Object and All Entries in its subtree, **One** = Base Object and immediate subordinates of the base object.  **Base** = Base Object only.  (Default Value = **All**)
+| union | No | Allows for multiple searches to occur for the same result set.  For each entry, another search will be performed and the results from that serach will be merged into the original resultset.  See [Multiple Searches In One Request](#multiple-searches-in-one-request) for details.
+| union > searchBase | No | Changes the "SearchBase" of the original request to the value specified.  This allows for one call to search multiple search bases in a single request, something not supported with regular LDAP calls.
+| union > searchValue | No | Changes the "searchValue" of the original request to the value specified.
 | maxResults | No | The maximum number of records to return.  If more record exist, the "nextToken" attribute will be returned which allows for another search from the last record retrieved.  (See [Paged Searching](#paged-searching) For More Details)
 | nextToken | No | A Base64 encoded token that allows for paged searching.  Used to return next set of records that still exist after the maxResults amount have been retrieved. (See [Paged Searching](#paged-searching) For More Details)
 | wildcardSearch | No | Explicitly tells MyriAD that you are performing a wildcard search.  This is only used when searching by ObjectType, and the attribute or DN contains an explicit asterisk in it.  When set to "false", it tells MyriAD to LDAP Escape the '*' value instead of doing a wildcard search.  (Default Value = true)
@@ -207,3 +214,134 @@ When a token cannot be found, or the server does not support pagination, the err
   "totalRecords": 0
 }
 ```
+
+### Multiple Searches In One Request
+
+Beginning with version 1.1.23346.0 of MyriAD, the ability to perform multiple searches in a single request was introduced.  This allows for the previously unavailable option of seraching multiple search bases with a single call.  The results from each search will be returned as a single result set.
+
+Currently, this only works with [searches by filter](usage.md#search-using-ldap-filter) (not by [ObjectType](usage.md#search-by-object-type-user)) and the only fields that are allowed to change for each individual search are "searchBase" and "serachValue".
+
+**Example** : The request below pulls all users from Houston, Austin and Dallas, but not any other cities in Texas and returns them in a single result set.
+```json
+Request : 
+
+{
+    "searchBase": "OU=Houston,OU=Texas,DC=sandbox,DC=local",
+    "searchValue": "objectClass=user",
+    "attributes": [],
+    "union": [
+        {
+            "searchBase": "OU=Austin,OU=Texas,DC=sandbox,DC=local"
+        },
+        {
+            "searchBase": "OU=Dallas,OU=Texas,DC=sandbox,DC=local"
+        }
+    ]
+}
+
+Response : 
+{
+    "success": true,
+    "server": "ldaps://sandbox.local:636",
+    "searchBases": [
+        "OU=Houston,OU=Texas,DC=sandbox,DC=local",
+        "OU=Austin,OU=Texas,DC=sandbox,DC=local",
+        "OU=Dallas,OU=Texas,DC=sandbox,DC=local"
+    ],
+    "searchFilters": [
+        "objectClass=user",
+        "objectClass=user",
+        "objectClass=user"
+    ],
+    "status": "Success",
+    "totalRecords": 8,
+    "records": [
+        {
+            "dn": "CN=Howard Hughes,OU=Houston,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Beyonce,OU=Houston,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Lizzo,OU=Houston,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Lance Armstrong,OU=Austin,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Sandra Bullock,OU=Austin,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Andy Roddick,OU=Austin,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Mark Cuban,OU=Dallas,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Dak Prescott,OU=Dallas,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        }
+    ]
+}
+```
+
+**Example** : Expanding on the examle above, lets add the "searchValue" into the union to search for users that are in Houston, Austin and Dallas, but only if their names start with the same letter as the city they're from.
+
+````json
+Request : 
+
+{
+    "searchBase": "OU=Houston,OU=Texas,DC=sandbox,DC=local",
+    "searchValue": "&(objectClass=user)(cn=H*))",
+    "attributes": [],
+    "union": [
+        {
+            "searchBase": "OU=Austin,OU=Texas,DC=sandbox,DC=local",
+            "searchValue": "&(objectClass=user)(cn=A*))"
+        },
+        {
+            "searchBase": "OU=Dallas,OU=Texas,DC=sandbox,DC=local",
+            "searchValue": "&(objectClass=user)(cn=D*))"
+        }
+    ]
+}
+
+Response : 
+{
+    "success": true,
+    "server": "ldaps://sandbox.local:636",
+    "searchBases": [
+        "OU=Houston,OU=Texas,DC=sandbox,DC=local",
+        "OU=Austin,OU=Texas,DC=sandbox,DC=local",
+        "OU=Dallas,OU=Texas,DC=sandbox,DC=local"
+    ],
+    "searchFilters": [
+        "&(objectClass=user)(cn=H*))",
+        "&(objectClass=user)(cn=A*))",
+        "&(objectClass=user)(cn=D*))"
+    ],
+    "status": "Success",
+    "totalRecords": 3,
+    "records": [
+        {
+            "dn": "CN=Howard Hughes,OU=Houston,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Andy Roddick,OU=Austin,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Dak Prescott,OU=Dallas,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        }
+    ]
+}
+````
