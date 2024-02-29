@@ -27,6 +27,7 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
         "ssl": true,
         "username": "MyUserName",
         "password": "MyEncryptedOrPlaintextPassword",
+        "TokenType": "Server, Client, or Server/Client(Python Version Only)",
         "maxRetries": 0,
         "maxPageSize": 512,
         "followReferrals": false,
@@ -66,6 +67,7 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
 | config > ssl | No | Boolean value on whether to connect to the server using a secure socket. 
 | config > username | No | The username used to connect to the LDAP server.
 | config > password | No | The password (encrypted or plaintext) ot use to connect to the LDAP Server.
+| config > TokenType | No | The Token type used to determine the nextToken.
 | config > maxRetries | No | The number of times to retry reconnecting to the server before stopping. (Default = 0, No Retries)
 | config > maxPageSize | No | This tells MyriAD how many results to pull back for each search it performs up to the "maxResults".  This affects the internal retrieval of results and is used mostly for performance tuning, not to control the number of records returned.  (Default = 512)
 | config > followReferrals | No | Indicates whether or not to follow LDAP referrals when retrieving records.  This is used when records exist, but might not exist on the server you are attached to.  This does cause performance issues, so use it only if you know you need to use it.  (Default = False)
@@ -200,7 +202,12 @@ Response :
 
 Beginning with version 1.1.23165.0 of MyriAD, the ability to specify the maximum number of records you want returned, and the ability to make a 2nd search passing in a "nextToken" field to retrieve more records starting from the last record retrieved was introduced.
 
-This functionality, however, is HIGHLY dependant on the LDAP server's configuration as to whether it supports paged results (sometimes called LDAP Cookies).  In my testing observations, I've noticed that the token RARELY survives the LDAP connection being closed.  On busy servers, it also seems to be very short-lived, as the settings on the server's "Cookie Pool" are usually set low.
+With the latest release of MyriAD(1.1.24051.0) this functionality is no longer dependent on the LDAP server's configuration, unless the user wants it to. MyriAD will default the Token Type to either "Server" or "Client" based on what the Token Type is set up as in the enviroment variables. 
+
+If "TokenType" is set to "Server" MyriAD will continue to be HIGHLY dependent on the LDAP server's configuration. On the other hand MyriAD now offers two other Token Type options, those being "Client" and "Server/Client"(Python Version only: uses the Python-Ldap Module instead of the Bonsai module). These Tokens are not dependent on the LDAP server at all, the process of generating these tokens are done on the Client's Side allowing users to continue Paged Searching under strict LDAP server configurations.
+**Warning**: If you are using "Client" or "Server/Client" as the Token Type the order of the searches cannot be changed nor can the Token Type be changed.
+
+<!-- This functionality, however, is HIGHLY dependant on the LDAP server's configuration as to whether it supports paged results (sometimes called LDAP Cookies).  In my testing observations, I've noticed that the token RARELY survives the LDAP connection being closed.  On busy servers, it also seems to be very short-lived, as the settings on the server's "Cookie Pool" are usually set low. -->
 
 When a token cannot be found, or the server does not support pagination, the error below will appear.
 
@@ -215,11 +222,137 @@ When a token cannot be found, or the server does not support pagination, the err
 }
 ```
 
+#### Using Token Types In A Paged Search Request
+
+**Example** : The request below pulls all users from Houston, Austin and Dallas, but not any other cities in Texas and returns them in a single result set.
+
+```json
+Request : 
+
+{
+    "searchBase": "OU=Houston,OU=Texas,DC=sandbox,DC=local",
+    "searchValue": "objectClass=user",
+    "attributes": [],
+    "maxResults": 2,
+    "union": [
+        {
+            "searchBase": "OU=Austin,OU=Texas,DC=sandbox,DC=local"
+        },
+        {
+            "searchBase": "OU=Dallas,OU=Texas,DC=sandbox,DC=local"
+        }
+    ],
+    "config": {
+        "TokenType":"Client"
+    }
+}
+
+Response : 
+{
+    "success": true,
+    "server": "ldaps://sandbox.local:636",
+    "searchBases": [
+        "OU=Houston,OU=Texas,DC=sandbox,DC=local",
+        "OU=Austin,OU=Texas,DC=sandbox,DC=local",
+        "OU=Dallas,OU=Texas,DC=sandbox,DC=local"
+    ],
+    "searchFilters": [
+        "objectClass=user",
+        "objectClass=user",
+        "objectClass=user"
+    ],
+    "status": "Success",
+    "totalRecords": 2,
+    "nextToken": "Mi0wMQ==",
+    "records": [
+        {
+            "dn": "CN=Howard Hughes,OU=Houston,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Beyonce,OU=Houston,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        }
+    ]
+}
+```
+**Example** : Expanding on the example above, lets now add the "nextToken" value into the request body to search for users that are in Houston, Austin and Dallas. Also lets increase "maxResults" to get all the remaining users.
+**Note**: If you are using "Client" as your token type, "maxResults" cannot be removed from the request after your 1st paged search, the value can be changed, but has to be included in the request body moving forward.
+
+``` json
+Request : 
+
+{
+    "searchBase": "OU=Houston,OU=Texas,DC=sandbox,DC=local",
+    "searchValue": "objectClass=user",
+    "attributes": [],
+    "nextToken": "Mi0wMQ==",
+    "maxResults": 20,
+    "union": [
+        {
+            "searchBase": "OU=Austin,OU=Texas,DC=sandbox,DC=local"
+        },
+        {
+            "searchBase": "OU=Dallas,OU=Texas,DC=sandbox,DC=local"
+        }
+    ],
+    "config": {
+        "TokenType":"Client"
+    }
+}
+
+Response :
+{
+    "success": true,
+    "server": "ldaps://sandbox.local:636",
+    "searchBases": [
+        "OU=Houston,OU=Texas,DC=sandbox,DC=local",
+        "OU=Austin,OU=Texas,DC=sandbox,DC=local",
+        "OU=Dallas,OU=Texas,DC=sandbox,DC=local"
+    ],
+    "searchFilters": [
+        "objectClass=user",
+        "objectClass=user",
+        "objectClass=user"
+    ],
+    "status": "Success",
+    "totalRecords": 6,
+    "records": [
+        {
+            "dn": "CN=Lizzo,OU=Houston,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Lance Armstrong,OU=Austin,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Sandra Bullock,OU=Austin,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Andy Roddick,OU=Austin,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Mark Cuban,OU=Dallas,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        },
+        {
+            "dn": "CN=Dak Prescott,OU=Dallas,OU=Texas,DC=sandbox,DC=local",
+            "attributes": {}
+        }
+    ]
+}
+```
+
 ### Multiple Searches In One Request
 
 Beginning with version 1.1.23346.0 of MyriAD, the ability to perform multiple searches in a single request was introduced.  This allows for the previously unavailable option of seraching multiple search bases with a single call.  The results from each search will be returned as a single result set.
 
-Currently, this only works with [searches by filter](usage.md#search-using-ldap-filter) (not by [ObjectType](usage.md#search-by-object-type-user)) and the only fields that are allowed to change for each individual search are "searchBase" and "serachValue".
+<!-- Currently, this only works with [searches by filter](usage.md#search-using-ldap-filter) (not by [ObjectType](usage.md#search-by-object-type-user)) and the only fields that are allowed to change for each individual search are "searchBase" and "serachValue". -->
+
+Currently, Multiple Searches now works with [searches by filter](usage.md#search-using-ldap-filter) and [ObjectType](usage.md#search-by-object-type-user) **Note** If you wish to use Objectype for Multiple Searches, "objectType" must be defined in the request object of the call.
 
 **Example** : The request below pulls all users from Houston, Austin and Dallas, but not any other cities in Texas and returns them in a single result set.
 ```json
