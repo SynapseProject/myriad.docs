@@ -168,7 +168,7 @@ Body:
 }
 ````
 
-### Retrieive from Batch Table
+### Retrive from Batch Table
 
 Retrieve records from Batch Processing Table, to achieve this, the jobId has to be passed in. If the batch is still in process myriAD will return a message saying that the process is still in progress.
 

@@ -484,3 +484,73 @@ Response :
     ]
 }
 ````
+
+### Batch Processing
+
+Beginning with the lastest Version of MyriAD(July 2024) the functionality of batch processing was introduced. This functionality was developed with the idea of helping bypass the 29 second time limit that the AWS Gateway currently has. This allows for longer requests to be executed.
+Once the request is completed, the user can then make a call to MyriAD to retrieve that info.
+
+**Example** : The request below pulls all users from Houston and returns them in a single result set.
+````json
+Request:
+
+{
+  "searchBase": "OU=Texas,DC=sandbox,DC=local",
+  "searchValue": "(&(objectClass=User)(membeOf=CN=Houston,OU=Texas,DC=sandbox,DC=local))",
+  "attributes": [],
+  "maxResults": 5,
+  "config": {
+    "TokenType": "Server",
+    "batch": true
+  }
+}
+
+Response:
+{
+  "statusCode": 200,
+  "jobID": "13aec7cb-1609-40e2-877d-777ae56bd201",
+  "recordsID": "a5c311",
+  "message": "Please save the jobID, this jobID will be needed for the retrieval"
+}
+````
+#### Retreival
+````json
+Request:
+
+{
+  "jobID": "13aec7cb-1609-40e2-877d-777ae56bd201",
+  "maxResults": 5,
+  "config": {
+    "retrieval": true
+  }
+}
+
+Response:
+
+{
+  "records": [
+    {
+      "attributes": {},
+      "dn": "CN=Howard Hughes,OU=Houston,OU=Texas,DC=sandbox,DC=local"
+    },
+    {
+      "attributes": {},
+      "dn": "CN=Andy Roddick,OU=Houston,OU=Texas,DC=sandbox,DC=local"
+    },
+    {
+      "attributes": {},
+      "dn": "CN=Dak Prescott,OU=Houston,OU=Texas,DC=sandbox,DC=local"
+    },
+    {
+      "attributes": {},
+      "dn": "CN=CJ Stroud,OU=Houston,OU=Texas,DC=sandbox,DC=local"
+    },
+    {
+      "attributes": {},
+      "dn": "CN=Steffon Diggs,OU=Houston,OU=Texas,DC=sandbox,DC=local"
+    }
+  ],
+  "nextToken": 5,
+  "Size": "120 bytes"
+}
+````
