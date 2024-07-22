@@ -5,6 +5,7 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
 ````json
 {
     "objectType": "ObjectTypeEnum",
+    "jobID": "JobID",
     "domain": "DomainMappingKey",
     "searchValue": "SearchValue",
     "searchBase": "SearchBase",
@@ -28,6 +29,8 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
         "username": "MyUserName",
         "password": "MyEncryptedOrPlaintextPassword",
         "TokenType": "Server, Client, or Server/Client(Python Version Only)",
+        "batch": false,
+        "retrieval": false,
         "maxRetries": 0,
         "maxPageSize": 512,
         "followReferrals": false,
@@ -51,6 +54,7 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
 | Json Path | Required | Description
 | --------- | -------- | -----------
 | objectType | No | Type of object to search for.  Leave blank when using a raw LDAP Search Filter.  See [Object Types](#object-types) for valid values.
+| jobID | No | ID Number that will be used to retrieve the records stored in the Batch Table. 
 | domain | No | The domain mapping key or config profile that should be used to perform the search (see [LDAP Configuration](../install/aws.md#ldap-configuration) for details.)
 | searchValue | Yes | The value to search on.  This should be the LDAP Search Filter for raw LDAP searches, or the identity of the object.  See [Identities](#identities) for more details.  The following [special characters](#reserved-search-characters) will need to be escaped: \ ( ) * and NULL.
 | searchBase | No | The fully qualified domain name of the OU from where the search should being.  (Defaults to RootDSE).
@@ -68,6 +72,8 @@ The code behind myriAD receives a JSON object as its input.  Whether this is pas
 | config > username | No | The username used to connect to the LDAP server.
 | config > password | No | The password (encrypted or plaintext) ot use to connect to the LDAP Server.
 | config > TokenType | No | The Token type used to determine the nextToken.
+| config > batch | No | Bool value that determines wether or not to start a batch request.
+| config > retrieval | No | Bool value to retrieve records from Batch Processing Table
 | config > maxRetries | No | The number of times to retry reconnecting to the server before stopping. (Default = 0, No Retries)
 | config > maxPageSize | No | This tells MyriAD how many results to pull back for each search it performs up to the "maxResults".  This affects the internal retrieval of results and is used mostly for performance tuning, not to control the number of records returned.  (Default = 512)
 | config > followReferrals | No | Indicates whether or not to follow LDAP referrals when retrieving records.  This is used when records exist, but might not exist on the server you are attached to.  This does cause performance issues, so use it only if you know you need to use it.  (Default = False)

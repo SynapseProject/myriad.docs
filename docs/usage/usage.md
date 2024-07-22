@@ -5,6 +5,7 @@ myriAD works by placing a REST call to the API interface.  Below is a list of ea
 - **Password Encryption** : Returns an encrypted version of a password based on either the default encryption keys, or using the encryption keys passed in with the request.  See the [Security Page](security.md#password-encryption) for more details.
 - **Raw LDAP Search** : Executes a search against the LDAP server using an LDAP Search Filter using an HTTP POST.
 - **Search By Object Type** : Executes a search for a specific LDAP Object Type (User, Group, etc...) using an HTTP GET.
+- **Search Using Batch Processing** : Returns a jobID that will then be used to retrieve the records that are stored in the DynamoDB table.
 
 ## Request and Response Objects
 
@@ -133,5 +134,85 @@ Url :       https://{{apigateway}}/{{apigwystage}}/user/Waguespack*?attr=cn&attr
             }
         }
     ]
+}
+````
+### Search Using Batch Processing
+
+Provies a raw LDAP Search Filter in the "searchValue" element.  Returns a jobID whic will be used to retrieve the records in the Batch Processing Table.
+[Request](request.md)
+
+````json
+Http Verb:  POST
+Url :       https://{{apigateway}}/{{apigwystage}}/search
+Body:
+{
+	"domain": "BP1",
+    "searchBase": "OU=Spoke,DC=BP1,DC=AD,DC=BP,DC=COM",
+    "searchValue": "(&(objectClass=group)(bp-Text256-02=*,OU=PrivilegeGroups,OU=Groups,OU=Spoke-W-*,OU=Spoke,DC=bp1,DC=ad,DC=bp,DC=com))",
+    "attributes": [],
+    "maxResults": 200,
+    "config": {
+        "TokenType": "Server",
+        "batch": true
+    }
+}
+````
+[Response](response.md)
+
+````json
+{
+    "statusCode": 200,
+    "jobID": "0f7df502-16df-4267-a9b6-37d151816e5a",
+    "recordsID": "c78cf5",
+    "message": "Please save the jobID, this jobID will be needed for the retrieval"
+}
+````
+
+### Retrieive from Batch Table
+
+Retrieve records from Batch Processing Table, to achieve this, the jobId has to be passed in. If the batch is still in process myriAD will return a message saying that the process is still in progress.
+
+[Request](request.md)
+
+````json
+Http Verb:  POST
+Url :       https://{{apigateway}}/{{apigwystage}}/search
+Body:
+{
+    "jobID": "0f7df502-16df-4267-a9b6-37d151816e5a",
+    "maxResults": 5,
+    "config": {
+        "retrieval": true
+    }
+}
+````
+[Response](response.md)
+
+````json
+{
+    "records": [
+    {
+      "attributes": {},
+      "dn": "CN=WS-00DI-role_dst_OPS,OU=PrivilegeGroups,OU=Groups,OU=Spoke-W-00DI,OU=Spoke,DC=bp1,DC=ad,DC=bp,DC=com"
+    },
+    {
+      "attributes": {},
+      "dn": "CN=WS-00DI-role_fun_SUPPORT,OU=PrivilegeGroups,OU=Groups,OU=Spoke-W-00DI,OU=Spoke,DC=bp1,DC=ad,DC=bp,DC=com"
+    },
+    {
+      "attributes": {},
+      "dn": "CN=WS-0286-role_st-engpilots_DATA_ENG,OU=PrivilegeGroups,OU=Groups,OU=Spoke-W-0286,OU=Spoke,DC=bp1,DC=ad,DC=bp,DC=com"
+    },
+    {
+      "attributes": {},
+      "dn": "CN=WS-0286-role_st-engpilots_ADMIN,OU=PrivilegeGroups,OU=Groups,OU=Spoke-W-0286,OU=Spoke,DC=bp1,DC=ad,DC=bp,DC=com"
+    },
+    {
+      "attributes": {},
+      "dn": "CN=WS-0286-role_engpilots_OPS,OU=PrivilegeGroups,OU=Groups,OU=Spoke-W-0286,OU=Spoke,DC=bp1,DC=ad,DC=bp,DC=com"
+    }
+  ],
+  "nextToken": 5,
+  "Size": "120 bytes"
 }
 ````

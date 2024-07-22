@@ -16,6 +16,8 @@ myriAD responds with a single LdapResponse JSON object for each request it recei
         "Search Filter 1",
         "Search Filter 2"
     ],
+    "jobID": "jobID",
+    "recordsID": "recordsID",
     "status": "SuccessWithWarnings",
     "message": "Error Message or Encrypted Value of Password",
     "totalRecords": 42,
@@ -43,6 +45,8 @@ myriAD responds with a single LdapResponse JSON object for each request it recei
 | searchBases | A list of the Serarch Bases that were used in the request.  This only appears when the "union" element is in the request. See [Multiple Searches In One Request](request.md#multiple-searches-in-one-request) for details.
 | searchFilter | The raw LDAP Search Filter used for the query.
 | searchFilters | A list of Search Filters that were used in the request.  This only appears when the "union" element is in the request.  See [Multiple Searches In One Request](request.md#multiple-searches-in-one-request) for details.
+| jobID | ID Number that will be used to retrieve the records stored in the Batch Table.
+| recordsID | ID NUmber that will be used to help find identify specific records
 | status | Enumeration indicating the status of the request.  Valid values are "Success", "SuccessWithWarnings" and "Failure".
 | message | When success is false, the error message.  When query was an encrpytion request, this field will contained the encrypted value.
 | totalRecords | Total number of records returned in this search.
